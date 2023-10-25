@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import './index.css';
 import { Outlet, Link } from 'react-router-dom';
 import { useGet } from '../../contexts/UserContext';
@@ -23,7 +23,7 @@ function DefaultTemplate() {
   return (
     <div className="DefaultTemplate">
       <nav className="DefaultTemplateNavBar">
-        <img alt="" src="/img/icon_large.png" />
+        <Link to="/"><img alt="" src="/img/icon_large.png" /></Link>
         <Link to="/">Home</Link>
         {profile_button}
       </nav>

@@ -1,9 +1,23 @@
 import React from 'react';
 import './index.css';
+import DanceStyles from '../../../constants/dance-styles';
+import { Link } from 'react-router-dom';
 
 function Home() {
   return (
-    <span>Home page</span>
+    <div className="homePageContainer">
+      {DanceStyles.map((danceStyle) => (<>
+        <Link to={`/dance/${danceStyle.id}`}>
+          <div className="label">{danceStyle.label}</div>
+          {danceStyle.picture !== '' ? (
+            <>
+              <img src={danceStyle.picture} alt="" />
+              <div className="image-overlay" />
+            </>
+          ) : null}
+        </Link>
+      </>))}
+    </div>
   );
 }
 

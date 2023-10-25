@@ -1,0 +1,52 @@
+.homePageContainer {
+  display: flex;
+  gap: 1rem;
+  row-gap: 1rem;
+  flex-wrap: wrap;
+  padding: 2rem;
+}
+
+.homePageContainer > * {
+  display: flex;
+  min-width: 20rem;
+  max-width: 32rem;
+  height: 16rem;
+  flex: 1 1;
+  align-items: center;
+  justify-content: center;
+}
+
+.homePageContainer a {
+  text-decoration: none;
+  color: white;
+  font-size: 2.4rem;
+  text-align: center;
+  object-fit: cover;
+  position: relative;
+  overflow: hidden;
+  border-radius: 5px;
+}
+
+.homePageContainer a > div.label {
+  z-index: 2;
+  position: relative;
+}
+
+.homePageContainer a img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.homePageContainer .image-overlay {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  z-index: 1;
+  opacity: 0.4;
+}
