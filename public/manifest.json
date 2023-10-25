@@ -1,25 +1,28 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Dance Moves",
+  "name": "Dance Moves",
   "icons": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "src": "img/icon_mask.png",
+      "sizes": "192x192 256x256",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
-      "src": "logo192.png",
+      "src": "img/icon_medium.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "128x128 192x192 256x256",
+      "purpose": "any"
     },
     {
-      "src": "logo512.png",
+      "src": "img/icon_large.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512 1024x1024",
+      "purpose": "any"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#00FFBB",
+  "background_color": "#222"
 }
