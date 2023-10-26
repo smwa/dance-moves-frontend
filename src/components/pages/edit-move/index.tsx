@@ -13,9 +13,10 @@ function EditMove() {
   const navigate = useNavigate();
   const { moveId } = useParams();
   const [move, setMove] = useState<getMoveResponse>(null);
-  const [videoDuration, setVideoDuration] = useState<number>(10000);
+  const [videoDuration, setVideoDuration] = useState<number>(-1);
   const [videoPosition, setVideoPosition] = useState<number>(0);
   const [newTag, setNewTag] = useState<string>('');
+  const [reloadingVideo, setReloadingVideo] = useState<boolean>(false);
 
   const [startTime, setStartTime] = useState<string>('0');
   const [endTime, setEndTime] = useState<string>('0');
@@ -79,7 +80,7 @@ function EditMove() {
       alert(e);
       return;
     }
-    navigate(`/move/${move.id}`);
+    navigate(`/style/${danceStyle}`);
   };
 
   const newTagKeyDown: KeyboardEventHandler<HTMLInputElement> = (e) => {
@@ -96,22 +97,47 @@ function EditMove() {
     setNewTag("");
   };
 
+  const refreshVideo = () => {
+    setReloadingVideo(true);
+    const moveIdInt = parseInt(moveId ?? '-1', 10);
+    getMove(moveIdInt).then((response) => {
+      setReloadingVideo(false);
+      if (!response) {
+        return;
+      }
+      move.video = response.video;
+    });
+  };
+
   return (
     <form onSubmit={onSave}>
       <div className="editMovePageContainer defaultPageContainer">
-        <ReactPlayer
-          url={`${API_HOST}${move.video}`}
-          loop={true}
-          onReady={onVideoLoad}
-          onProgress={onVideoProgress}
-          progressInterval={100}
-          controls={true}
-          config={{
-            file: {
-              forceVideo: true,
-            },
-          }}
-        />
+        {reloadingVideo ? null : (
+          <ReactPlayer
+            url={`${API_HOST}${move.video}`}
+            loop={true}
+            onReady={onVideoLoad}
+            onProgress={onVideoProgress}
+            progressInterval={100}
+            controls={true}
+            config={{
+              file: {
+                forceVideo: true,
+              },
+            }}
+          />
+        )}
+
+        {videoDuration >= 0 ? null : (
+          <>
+            <p>
+              If the clip above fails to load, then your browser can't show it until the video is done processing.
+              You can go ahead and edit the fields below and click this refresh button to retry the video.
+              It could take several minutes to finish processing depending on the length of the video.
+            </p>
+            <button type="button" onClick={refreshVideo}>Refresh</button>
+          </>
+        )}
 
         <h3>Start of clip</h3>
         <div className="inputRowContainer">
@@ -121,7 +147,7 @@ function EditMove() {
 
         <h3>End of clip</h3>
         <div className="inputRowContainer">
-          <input type="number" min={startTime + 0.1} max={videoDuration} value={endTime} onChange={(e) => {setEndTime(e.target.value)}} />
+          <input type="number" min={startTime} max={videoDuration} value={endTime} onChange={(e) => {setEndTime(e.target.value)}} />
           <button type="button" onClick={() => {setEndTime(videoPosition.toFixed(1))}}>Set to current clip time</button>
         </div>
 
