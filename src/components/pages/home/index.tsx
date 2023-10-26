@@ -7,7 +7,7 @@ function Home() {
   return (
     <div className="homePageContainer">
       {DanceStyles.map((danceStyle) => (<>
-        <Link to={`/style/${danceStyle.id}`}>
+        <Link key={danceStyle.id} to={`/style/${danceStyle.id}`}>
           <div className="label">{danceStyle.label}</div>
           {danceStyle.picture !== '' ? (
             <>

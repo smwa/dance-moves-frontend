@@ -1,4 +1,4 @@
-import React, { createRef } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
 import './index.css';
 import DanceStyles from '../../../constants/dance-styles';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -6,13 +6,25 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { PlusCircle as AddIcon } from 'react-feather';
 import { useGet } from '../../../contexts/UserContext';
 import createMove from '../../../repositories/createMove';
+import getMoves, { Response as getMovesResponse } from '../../../repositories/getMoves';
 
 function Style() {
+  const [moves, setMoves] = useState<getMovesResponse>(null);
   const navigate = useNavigate();
   const hiddenUploadInput = createRef<HTMLInputElement>();
   const userResponse = useGet();
   const { styleId } = useParams();
   const style = DanceStyles.filter((style) => style.id === styleId)[0];
+
+  useEffect(() => {
+    getMoves().then((moves) => {
+      if (moves === null) {
+        setMoves(moves);
+        return;
+      }
+      setMoves(moves.filter((move) => move.dance_style === styleId));
+    });
+  }, [styleId]);
 
   const onNewMoveClick = () => {
     if (!hiddenUploadInput.current) return;
@@ -25,9 +37,9 @@ function Style() {
     if (!result.success) {
       console.error(result)
       alert("Something went wrong. Reload the page and try again."); // TODO
-      // TODO Refresh moves cache and wait for it to finish
-      navigate(`/move/${result.move_id}`);
+      return;
     }
+    navigate(`/move/${result.move_id}/edit`);
   };
 
   return (
@@ -36,7 +48,11 @@ function Style() {
       {userResponse?.user ? (<button className="newMove" onClick={onNewMoveClick} type="button"><AddIcon size={16} /> New Move</button>) : null}
       <input type='file' onChange={onNewMoveChange} className='hiddenupload' ref={hiddenUploadInput} />
       <div>
-        ..list of moves.. TODO
+        {moves === null ? null : moves.map((move) => (
+          <div key={move.id}>
+            <h2>{move.name} <small>({move.id})</small></h2>
+          </div>
+        ))}
       </div>
     </div>
   );
