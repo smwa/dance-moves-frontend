@@ -33,3 +33,4 @@ const DanceStyles: DanceStyle[] = [
 ]
 
 export default DanceStyles;
+export type { DanceStyle };

@@ -5,3 +5,7 @@ body {
   background-color: #222222;
   color: white;
 }
+
+.defaultPageContainer {
+  padding: 1rem 2rem 0 2rem;
+}

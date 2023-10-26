@@ -7,6 +7,7 @@ import DefaultTemplate from './components/default-template';
 import Home from './components/pages/home';
 import NotFound from './components/pages/not-found';
 import UserContextProvider from './contexts/UserContext';
+import Style from './components/pages/style';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -18,6 +19,7 @@ root.render(
         <Routes>
           <Route path="/" element={<DefaultTemplate />}>
             <Route index element={<Home />} />
+            <Route path="style/:styleId" element={<Style />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
