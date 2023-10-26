@@ -1,16 +1,33 @@
+.editMovePageContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.editMovePageContainer > :not(:first-child):not(h3) {
+  margin-left: 1rem;
+}
+
 /* Video Container */
 .editMovePageContainer > :first-child {
   width: 100% !important;
   height: initial !important;
 }
 
-.editMovePageContainer .timeContainer {
+.editMovePageContainer .inputRowContainer {
   display: flex;
   flex-direction: row;
+  align-items: center;
   gap: 1rem;
-  padding-left: 1rem;
 }
 
-.editMovePageContainer .timeContainer input {
+.editMovePageContainer .inputRowContainer input[type="number"] {
   width: 8rem;
+}
+
+.editMovePageContainer .standalone-textinput {
+  flex-grow: 1;
+}
+
+.editMovePageContainer button[type="submit"] {
+  max-width: 14rem;
 }
