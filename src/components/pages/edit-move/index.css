@@ -1,0 +1,16 @@
+/* Video Container */
+.editMovePageContainer > :first-child {
+  width: 100% !important;
+  height: initial !important;
+}
+
+.editMovePageContainer .timeContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  padding-left: 1rem;
+}
+
+.editMovePageContainer .timeContainer input {
+  width: 8rem;
+}

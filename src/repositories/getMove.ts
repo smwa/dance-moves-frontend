@@ -54,7 +54,7 @@ const getMove = async (move_id: number): Promise<Response> => {
   }
 
   response = await response.json();
-  return parseApiMoveToObject(response);
+  return parseApiMoveToObject(response.move);
 };
 
 export default getMove;

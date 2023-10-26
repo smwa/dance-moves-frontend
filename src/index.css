@@ -9,3 +9,16 @@ body {
 .defaultPageContainer {
   padding: 1rem 2rem 0 2rem;
 }
+
+input[type="text"],input[type="number"],button {
+  color: #00FFBB;
+  font-size: 20px;
+  display: inline-block;
+  margin: 1rem 0 2rem 0;
+  padding: 0 4px 0 4px;
+  text-decoration: none;
+  background-color: rgba(0,0,0,0);
+  border: none;
+  border-bottom: 2px solid #00FFBB;
+  cursor: pointer;
+}
