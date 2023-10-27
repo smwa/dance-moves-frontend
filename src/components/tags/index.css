@@ -10,10 +10,13 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 0.2rem;
   border: 1px solid white;
   border-radius: 12px;
   padding: 0 6px 0 12px;
+}
+
+.TagsContainer > * > :first-child {
+  padding-right: 6px;
 }
 
 .TagsContainer > * > * {

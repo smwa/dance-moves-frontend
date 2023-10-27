@@ -8,6 +8,7 @@ body {
 
 .defaultPageContainer {
   padding: 1rem 2rem 0 2rem;
+  width: calc(100% - 4rem);
 }
 
 input[type="text"],input[type="number"],button,select {

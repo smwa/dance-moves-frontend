@@ -57,8 +57,8 @@ function EditMove() {
     }
   };
 
-  const onVideoProgress = (prpgressProps: OnProgressProps) => {
-    setVideoPosition(prpgressProps.playedSeconds);
+  const onVideoProgress = (progressProps: OnProgressProps) => {
+    setVideoPosition(progressProps.playedSeconds);
   };
 
   const onDanceStyleChange = (e: ChangeEvent<HTMLSelectElement>) => {

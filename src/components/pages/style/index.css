@@ -1,3 +1,17 @@
 .stylePageContainer .hiddenupload {
   display: none;
 }
+
+.moveItemList {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.moveItemList > *::after {
+  content: '';
+  display: block;
+  width: 100%;
+  margin: 1.5rem 0 1.5rem 0;
+  border-bottom: 1px solid #888;
+}

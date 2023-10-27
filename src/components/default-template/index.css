@@ -1,3 +1,7 @@
+.DefaultTemplate, .DefaultTemplateOutlet {
+  width: 100vw;
+}
+
 .DefaultTemplateNavBar {
   width: calc(100vw - 1rem);
   height: 4rem;

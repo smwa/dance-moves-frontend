@@ -1,6 +1,7 @@
 import API_HOST from './getApiHost';
 
 type _User = {
+  id: string;
   email: string;
 };
 

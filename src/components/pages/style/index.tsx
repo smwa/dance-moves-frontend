@@ -7,6 +7,7 @@ import { PlusCircle as AddIcon } from 'react-feather';
 import { useGet } from '../../../contexts/UserContext';
 import createMove from '../../../repositories/createMove';
 import getMoves, { Response as getMovesResponse } from '../../../repositories/getMoves';
+import MoveListItem from '../../move-list-item';
 
 function Style() {
   const [moves, setMoves] = useState<getMovesResponse>(null);
@@ -36,7 +37,7 @@ function Style() {
     const result = await createMove(hiddenUploadInput.current, style.id);
     if (!result.success) {
       console.error(result)
-      alert("Something went wrong. Reload the page and try again."); // TODO
+      alert("Something went wrong. Reload the page and try again.");
       return;
     }
     navigate(`/move/${result.move_id}/edit`);
@@ -47,11 +48,9 @@ function Style() {
       <h1>{style?.label} Moves</h1>
       {userResponse?.user ? (<button className="newMove" onClick={onNewMoveClick} type="button"><AddIcon size={16} /> New Move</button>) : null}
       <input accept="video/mp4,video/x-m4v,video/quicktime,video/*" type='file' onChange={onNewMoveChange} className='hiddenupload' ref={hiddenUploadInput} />
-      <div>
+      <div className="moveItemList">
         {moves === null ? null : moves.map((move) => (
-          <div key={move.id}>
-            <h2>{move.name} <small>({move.id})</small></h2>
-          </div>
+          <MoveListItem move={move} key={move.id} />
         ))}
       </div>
     </div>
