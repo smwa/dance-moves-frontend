@@ -18,7 +18,7 @@ function MoveListItem({ move }: { move: Move }) {
     if (player) {
       player.seekTo(move.video_start_time);
     }
-  }, [player]);
+  }, [player, move]);
 
   const onVideoLoad = (player: ReactPlayer) => {
     setPlayer(player);
