@@ -6,7 +6,7 @@ import { useGet } from '../../contexts/UserContext';
 function DefaultTemplate() {
   const userResponse = useGet();
 
-  let profile_button = <div>tet</div>;
+  let profile_button = <div></div>;
   if (userResponse !== null) {
     if (!userResponse.user) {
       profile_button = (<>
