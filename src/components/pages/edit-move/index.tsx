@@ -17,6 +17,7 @@ function EditMove() {
   const [videoPosition, setVideoPosition] = useState<number>(0);
   const [newTag, setNewTag] = useState<string>('');
   const [reloadingVideo, setReloadingVideo] = useState<boolean>(false);
+  const [cacheBuster, setCacheBuster] = useState(0);
 
   const [startTime, setStartTime] = useState<string>('0');
   const [endTime, setEndTime] = useState<string>('0');
@@ -102,6 +103,7 @@ function EditMove() {
     const moveIdInt = parseInt(moveId ?? '-1', 10);
     getMove(moveIdInt).then((response) => {
       setReloadingVideo(false);
+      setCacheBuster(cacheBuster + 1);
       if (!response) {
         return;
       }
@@ -109,12 +111,16 @@ function EditMove() {
     });
   };
 
+  const showReloadReason = () => {
+    alert("If the clip here fails to load after a few seconds, then your browser likely can't show it until the video is done processing. You can go ahead and edit the fields below and click the \"Reload Video\" button to retry the video later on. It could take several minutes to finish processing depending on the length of the video.");
+  };
+
   return (
     <form onSubmit={onSave}>
       <div className="editMovePageContainer defaultPageContainer">
         {reloadingVideo ? null : (
           <ReactPlayer
-            url={`${API_HOST}${move.video}`}
+            url={`${API_HOST}${move.video}?cb=${cacheBuster}`}
             loop={true}
             onReady={onVideoLoad}
             onProgress={onVideoProgress}
@@ -128,26 +134,20 @@ function EditMove() {
           />
         )}
 
-        {videoDuration >= 0 ? null : (
-          <>
-            <p>
-              If the clip above fails to load, then your browser can't show it until the video is done processing.
-              You can go ahead and edit the fields below and click this refresh button to retry the video.
-              It could take several minutes to finish processing depending on the length of the video.
-            </p>
-            <button type="button" onClick={refreshVideo}>Refresh</button>
-          </>
-        )}
+        <div className='inputRowContainer'>
+          <button type="button" onClick={refreshVideo}>Reload Video</button>
+          <button type="button" onClick={showReloadReason}>(Why?)</button>
+        </div>
 
         <h3>Start of clip</h3>
         <div className="inputRowContainer">
-          <input type="number" min={0} max={videoDuration - 0.2} value={startTime} onChange={(e) => {setStartTime(e.target.value)}} />
+          <input type="number" step={0.1} min={0} max={videoDuration - 0.2} value={startTime} onChange={(e) => {setStartTime(e.target.value)}} />
           <button type="button" onClick={() => {setStartTime(videoPosition.toFixed(1))}}>Set to current clip time</button>
         </div>
 
         <h3>End of clip</h3>
         <div className="inputRowContainer">
-          <input type="number" min={startTime} max={videoDuration} value={endTime} onChange={(e) => {setEndTime(e.target.value)}} />
+          <input type="number" step={0.1} min={startTime} max={videoDuration} value={endTime} onChange={(e) => {setEndTime(e.target.value)}} />
           <button type="button" onClick={() => {setEndTime(videoPosition.toFixed(1))}}>Set to current clip time</button>
         </div>
 

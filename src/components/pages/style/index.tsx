@@ -46,7 +46,7 @@ function Style() {
     <div className="stylePageContainer defaultPageContainer">
       <h1>{style?.label} Moves</h1>
       {userResponse?.user ? (<button className="newMove" onClick={onNewMoveClick} type="button"><AddIcon size={16} /> New Move</button>) : null}
-      <input type='file' onChange={onNewMoveChange} className='hiddenupload' ref={hiddenUploadInput} />
+      <input accept="video/mp4,video/x-m4v,video/quicktime,video/*" type='file' onChange={onNewMoveChange} className='hiddenupload' ref={hiddenUploadInput} />
       <div>
         {moves === null ? null : moves.map((move) => (
           <div key={move.id}>
