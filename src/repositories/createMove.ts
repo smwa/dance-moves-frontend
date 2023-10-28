@@ -14,7 +14,15 @@ const createMove = async (fileInputElement: HTMLInputElement, danceStyle: string
     return _response;
   }
   const data = new FormData();
-  data.append('file', fileInputElement.files[0]);
+  const file = fileInputElement.files.item(0);
+  if (file === null) {
+    const _response: Response = {
+      success: false,
+      move_id: 0,
+    };
+    return _response;
+  }
+  data.append('file', file);
   let response;
   try {
     response = await fetch(`${API_HOST}/move/?style=${danceStyle}`, {credentials: 'include', method: 'POST', body: data});
