@@ -10,12 +10,12 @@ class ChecksumService {
 
   async md5(file) {
     const _md5 = CryptoJS.algo.MD5.create();
-    const sliceSize = 256 * 1024; // 256KB
+    const sliceSize = 512 * 1024; // 256KB
     let start = 0;
 
     while (start < file.size) {
       const slice = await this.readSlice(file, start, sliceSize);
-      await _sleep(10);
+      await _sleep(2);
       const wordArray = CryptoJS.lib.WordArray.create(slice);
       _md5.update(wordArray);
       start += sliceSize;
