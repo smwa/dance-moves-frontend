@@ -1,21 +1,8 @@
 import { useEffect, useState } from "react";
 
-import CryptoJS from 'crypto-js';
+import ChecksumService from "../CheckSumService";
 
 const CHUNK_SIZE = 250000; // 250KB~
-
-const blobToBinaryString = (blob: Blob): Promise<CryptoJS.lib.WordArray> => {
-  return new Promise((resolve, reject) => {
-    var reader = new FileReader();
-    reader.onloadend = async () => {
-      const blobAsAny: any = reader.result;
-      const blobAsWordArray: CryptoJS.lib.WordArray|null = blobAsAny;
-      if (blobAsWordArray === null) return reject();
-      return resolve(blobAsWordArray);
-    };
-    reader.readAsBinaryString(blob);
-  });
-};
 
 type Props = {
   chunkEndpoint: string,
@@ -25,25 +12,70 @@ type Props = {
   finalEndpointFetchOptionsHeaders?: Headers,
   finalEndpoint: string,
   formFieldName?: string,
+  onFinish?: (responseBody: any) => void,
 };
 
 const useDjangoFileUpload = (props: Props) => {
   const [isActive, setIsActive] = useState(false);
+  const [activeRequest, setActiveRequest] = useState(false);
   const [file, setFile] = useState<File|undefined>();
   const [totalChunks, setTotalChunks] = useState(0);
   const [chunksProcessed, setChunksProcessed] = useState(0);
-  const [md5, setMd5] = useState(CryptoJS.algo.MD5.create());
-  const [chunksAddedToMd5, setChunksAddedToMd5] = useState(0);
-  const [requestActive, setRequestActive] = useState(false);
+  const [md5, setMd5] = useState("");
   const [uploadId, setUploadId] = useState('');
 
   const formFieldName = props.formFieldName ?? 'file'; // Defaults to file
 
-  const requestChunk = async (): Promise<globalThis.Response|void> => {
-    if (typeof file === 'undefined' || requestActive) {
-      return new Promise((resolve) => { resolve(); });
+  useEffect(() => {
+    if (
+      typeof file === 'undefined'
+      || !isActive
+      || activeRequest
+      || totalChunks < 1
+    ) {
+      return;
     }
-    setRequestActive(true);
+
+    if (totalChunks > 0 && chunksProcessed >= totalChunks) {
+      if (md5 === "") {
+        return; // Wait for md5 processing to finish
+      }
+      let finalEndpointFetchOptions: RequestInit = {};
+      let finalEndpointFetchOptionsHeaders: Headers = new Headers();
+      if (props.finalEndpointFetchOptions) {
+        finalEndpointFetchOptions = {...props.finalEndpointFetchOptions};
+      }
+      if (props.finalEndpointFetchOptionsHeaders) {
+        props.finalEndpointFetchOptionsHeaders.forEach((value, key) => {
+          finalEndpointFetchOptionsHeaders.append(key, value);
+        });
+      }
+      finalEndpointFetchOptions.method = 'POST';
+
+      const finalEndpointFetchBody = new FormData();
+      finalEndpointFetchBody.append('md5', md5);
+      finalEndpointFetchBody.append('upload_id', uploadId);
+      finalEndpointFetchOptions.body = finalEndpointFetchBody;
+      finalEndpointFetchOptions.headers = finalEndpointFetchOptionsHeaders;
+
+      setActiveRequest(true);
+      fetch(props.finalEndpoint, finalEndpointFetchOptions)
+      .then((response) => {
+        if (response.status >= 300) {
+          console.error(response.body);
+          throw new Error("Upload finish request failed");
+        }
+        setIsActive(false);
+        if (props.onFinish) {
+          response.json().then(props.onFinish);
+        }
+      })
+      .finally(() => {
+        setActiveRequest(false);
+      })
+      return;
+    }
+
     let chunkEndpointFetchOptions: RequestInit = {};
     let chunkEndpointFetchOptionsHeaders: Headers = new Headers();
     if (props.chunkEndpointFetchOptions) {
@@ -55,28 +87,27 @@ const useDjangoFileUpload = (props: Props) => {
       });
     }
     chunkEndpointFetchOptions.method = 'POST';
-    chunkEndpointFetchOptionsHeaders.append('Content-Range', `bytes ${chunksProcessed * CHUNK_SIZE}-${(chunksProcessed * CHUNK_SIZE) + (CHUNK_SIZE - 1)}/*`);
-    chunkEndpointFetchOptionsHeaders.append('Content-Type', 'application/json');
-    const chunkEndpointFetchBody: any = {};
-    const slice = file.slice((chunksProcessed * CHUNK_SIZE), (chunksProcessed * CHUNK_SIZE) + CHUNK_SIZE);
-    if (chunksAddedToMd5 === chunksProcessed) {
-      try {
-        md5.update(await blobToBinaryString(slice));
-        setChunksAddedToMd5(chunksAddedToMd5 + 1);
-      }
-      catch (e) {
-        console.log("Failed to convert to word array");
-      }
-    }
-    chunkEndpointFetchBody[formFieldName] = slice;
+    const slice_start = chunksProcessed * CHUNK_SIZE;
+    const slice_end = Math.min(((chunksProcessed * CHUNK_SIZE) + (CHUNK_SIZE)), file.size);
+    chunkEndpointFetchOptionsHeaders.append('Content-Range', `bytes ${slice_start}-${slice_end - 1}/${file.size}`);
+    const slice = file.slice(slice_start, slice_end, file.type);
+
+    const chunkEndpointFetchBody = new FormData();
+    chunkEndpointFetchBody.append(formFieldName, slice, file.name);
     if (uploadId !== '') {
-      chunkEndpointFetchBody.upload_id = uploadId;
+      chunkEndpointFetchBody.append('upload_id', uploadId);
     }
-    chunkEndpointFetchOptions.body = JSON.stringify(chunkEndpointFetchBody);
+    chunkEndpointFetchOptions.body = chunkEndpointFetchBody;
     chunkEndpointFetchOptions.headers = chunkEndpointFetchOptionsHeaders;
-    return fetch(props.chunkEndpoint, chunkEndpointFetchOptions)
-      .then((response) => {
-        return response.json();
+    
+    setActiveRequest(true);
+    fetch(props.chunkEndpoint, chunkEndpointFetchOptions)
+      .then((res) => {
+        if (res.status >= 300) {
+          console.error(res.body);
+          throw new Error("Chunk upload request failed");
+        }
+        return res.json();
       })
       .then((json) => {
         if (json.upload_id && uploadId === '') {
@@ -86,59 +117,31 @@ const useDjangoFileUpload = (props: Props) => {
       .then(() => {
         setChunksProcessed(chunksProcessed + 1);
       }).finally(() => {
-        setRequestActive(false);
+        setActiveRequest(false);
       });
-  };
+  }, [isActive, activeRequest, file, totalChunks, chunksProcessed, md5, uploadId, props, formFieldName]);
 
-  useEffect(() => {
-    if (!requestActive) {
-      requestChunk();
-    }
-    else {
-      if (totalChunks > 0 && chunksProcessed >= totalChunks) {
-        let finalEndpointFetchOptions: RequestInit = {};
-        let finalEndpointFetchOptionsHeaders: Headers = new Headers();
-        if (props.finalEndpointFetchOptions) {
-          finalEndpointFetchOptions = {...props.finalEndpointFetchOptions};
-        }
-        if (props.finalEndpointFetchOptionsHeaders) {
-          props.finalEndpointFetchOptionsHeaders.forEach((value, key) => {
-            finalEndpointFetchOptionsHeaders.append(key, value);
-          });
-        }
-        finalEndpointFetchOptions.method = 'POST';
-        finalEndpointFetchOptionsHeaders.append('Content-Type', 'application/json');
-        const finalEndpointFetchBody: any = {};
-        finalEndpointFetchBody.md5 = md5.finalize().toString(CryptoJS.enc.Hex);
-        finalEndpointFetchBody.upload_id = uploadId;
-        finalEndpointFetchOptions.body = JSON.stringify(finalEndpointFetchBody);
-        finalEndpointFetchOptions.headers = finalEndpointFetchOptionsHeaders;
-
-        fetch(props.finalEndpoint, finalEndpointFetchOptions)
-          .then((response) => {
-            setIsActive(false);
-          })
-      }
-    }
-  }, [requestActive]);
-
-  useEffect(() => {
-    setTotalChunks(0);
+  const _setFile = (file: File|undefined) => {
+    setFile(file);
     setChunksProcessed(0);
-    setMd5(CryptoJS.algo.MD5.create());
-    setChunksAddedToMd5(0);
+    setMd5("");
     setUploadId('');
-    setIsActive(false);
 
     if (typeof file !== 'undefined') {
       setIsActive(true);
       setTotalChunks(Math.ceil(file.size / CHUNK_SIZE));
-      requestChunk();
+      setTimeout(() => {
+        (new ChecksumService()).md5(file).then(setMd5);
+      });
     }
-  }, [file]);
+    else {
+      setIsActive(false);
+      setTotalChunks(0);
+    }
+  };
 
-  const progress = (Math.max(chunksProcessed / totalChunks, 1.0));
-  return { setFile, isActive, progress };
+  const progress = (Math.min(chunksProcessed / totalChunks, 1.0));
+  return { setFile: _setFile, isActive, progress };
 };
 
 export default useDjangoFileUpload;

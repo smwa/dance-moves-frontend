@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 function Home() {
   return (
     <div className="homePageContainer">
-      {DanceStyles.map((danceStyle) => (<>
+      {DanceStyles.map((danceStyle) => (
         <Link key={danceStyle.id} to={`/style/${danceStyle.id}`}>
           <div className="label">{danceStyle.label}</div>
           {danceStyle.picture !== '' ? (
@@ -16,7 +16,7 @@ function Home() {
             </>
           ) : null}
         </Link>
-      </>))}
+      ))}
     </div>
   );
 }
