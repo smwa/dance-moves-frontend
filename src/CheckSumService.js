@@ -1,5 +1,10 @@
 import CryptoJS from 'crypto-js';
 
+const _sleep = (ms_to_sleep) => {
+  return Promise((resolve) => {
+    setTimeout(resolve, ms_to_sleep);
+  });
+};
 
 class ChecksumService {
 
@@ -10,6 +15,7 @@ class ChecksumService {
 
     while (start < file.size) {
       const slice = await this.readSlice(file, start, sliceSize);
+      await _sleep(5);
       const wordArray = CryptoJS.lib.WordArray.create(slice);
       _md5.update(wordArray);
       start += sliceSize;
