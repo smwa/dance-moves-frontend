@@ -1,7 +1,7 @@
 import CryptoJS from 'crypto-js';
 
 const _sleep = (ms_to_sleep) => {
-  return Promise((resolve) => {
+  return new Promise((resolve) => {
     setTimeout(resolve, ms_to_sleep);
   });
 };
